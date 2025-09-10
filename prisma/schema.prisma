@@ -15,7 +15,31 @@ datasource db {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  name  String
-  email String @unique
+  userID                Int                   @id @default(autoincrement())
+  name                  String
+  email                 String @unique
+  password              String
+  dietaryRestrictions   DietaryRestriction[]
+  preferences           Preference[]
+}
+model Preference {
+  PreferenceID Int    @id @default(autoincrement())
+  name         String @unique
+  users        User[]
+  foods        Food[]
+}
+
+model Food {
+  FoodID              Int                  @id @default(autoincrement())
+  name                String
+  svgLink             String // link to the SVG file
+  dietaryRestrictions DietaryRestriction[]
+  preferences         Preference[]
+}
+
+model DietaryRestriction {
+  DietaryRestrictionID Int    @id @default(autoincrement())
+  name                 String @unique
+  foods                Food[]
+  users                User[]
 }
