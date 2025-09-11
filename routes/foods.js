@@ -67,3 +67,29 @@ router.get('/recommended/:userId', async (req, res) => {
 });
 
 module.exports = router;
+
+// DELETE /foods/:id - delete a food by id
+router.delete('/:id', async (req, res) => {
+    try {
+        const deleted = await foodsController.deleteFood(req.params.id);
+        if (!deleted) return res.status(404).json({ error: 'Food not found' });
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /foods - create a new food
+router.post('/', async (req, res) => {
+    try {
+        const { name, svgLink, preferences, dietaryRestrictions } = req.body;
+        const food = await foodsController.createFood({ name, svgLink, preferences, dietaryRestrictions });
+        res.status(201).json(food);
+    } catch (err) {
+        if (err.code === 'P2002') {
+            res.status(409).json({ error: 'Food with this unique value already exists' });
+        } else {
+            res.status(500).json({ error: err.message });
+        }
+    }
+});

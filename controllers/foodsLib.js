@@ -75,5 +75,31 @@ module.exports = {
     getFoodsByPreference,
     getFoodsByRestriction,
     getFoodsByPreferenceAndRestriction,
-    getRecommendedFoodsForUser
+    getRecommendedFoodsForUser,
+    createFood,
+    deleteFood
 };
+
+// Delete a food by id
+async function deleteFood(id) {
+    try {
+        await prisma.food.delete({ where: { FoodID: parseInt(id) } });
+        return true;
+    } catch (err) {
+        if (err.code === 'P2025') return false;
+        throw err;
+    }
+}
+
+// Create a new food
+async function createFood({ name, svgLink, preferences = [], dietaryRestrictions = [] }) {
+    return prisma.food.create({
+        data: {
+            name,
+            svgLink,
+            preferences: preferences.length ? { connect: preferences.map(id => ({ PreferenceID: id })) } : undefined,
+            dietaryRestrictions: dietaryRestrictions.length ? { connect: dietaryRestrictions.map(id => ({ DietaryRestrictionID: id })) } : undefined
+        },
+        include: { dietaryRestrictions: true, preferences: true }
+    });
+}
