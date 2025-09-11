@@ -2,10 +2,11 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3005;
 
-const usersRouter = require('./routes/users');
+
+const routes = require('./routes');
 
 app.use(express.json());
-app.use('/users', usersRouter);
+app.use('/', routes);
 
 app.get('/', (req, res) => {
   res.send('Backend is running!');
