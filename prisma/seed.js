@@ -28,20 +28,16 @@ async function main() {
   });
 
   // Create Foods
-  const tofu = await prisma.food.upsert({
-    where: { name: 'Tofu' },
-    update: {},
-    create: {
+  const tofu = await prisma.food.create({
+    data: {
       name: 'Tofu',
       svgLink: '/images/tofu.svg',
       preferences: { connect: [{ PreferenceID: vegan.PreferenceID }, { PreferenceID: healthy.PreferenceID }] },
       dietaryRestrictions: { connect: [{ DietaryRestrictionID: glutenFree.DietaryRestrictionID }] },
     },
   });
-  const salad = await prisma.food.upsert({
-    where: { name: 'Salad' },
-    update: {},
-    create: {
+  const salad = await prisma.food.create({
+    data: {
       name: 'Salad',
       svgLink: '/images/salad.svg',
       preferences: { connect: [{ PreferenceID: healthy.PreferenceID }] },
