@@ -20,8 +20,10 @@ jobs:
           postgresql db: testdb
           postgresql user: postgres
           postgresql password: postgres
-      - name: Set DATABASE_URL env
-        run: echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/testdb" >> $GITHUB_ENV
+      - name: Set DATABASE_URL and DIRECT_URL env
+        run: |
+          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/testdb" >> $GITHUB_ENV
+          echo "DIRECT_URL=postgresql://postgres:postgres@localhost:5432/testdb" >> $GITHUB_ENV
       - name: Run Prisma migrate
         run: npx prisma migrate deploy
       - name: Seed database
