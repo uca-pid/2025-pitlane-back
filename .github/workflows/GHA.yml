@@ -13,5 +13,18 @@ jobs:
           node-version: '18'
       - name: Install dependencies
         run: npm install
+      - name: Set up PostgreSQL
+        uses: harmon758/postgresql-action@v1
+        with:
+          postgresql version: '14'
+          postgresql db: testdb
+          postgresql user: postgres
+          postgresql password: postgres
+      - name: Set DATABASE_URL env
+        run: echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/testdb" >> $GITHUB_ENV
+      - name: Run Prisma migrate
+        run: npx prisma migrate deploy
+      - name: Seed database
+        run: npm run seed
       - name: Run Jest tests
         run: npm test
