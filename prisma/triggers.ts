@@ -33,28 +33,28 @@ async function main() {
     execute procedure public.handle_new_user();
   `;
 
-  // // Function: handle profile delete → delete user
-  // await sql`
-  //   create or replace function public.handle_user_delete()
-  //   returns trigger as $$
-  //   begin
-  //       begin
-  //           delete from auth.users where id = old.id;
-  //       exception when others then
-  //           raise notice 'handle_user_delete failed for profile %, error: %', old.id, SQLERRM;
-  //       end;
-  //       return old;
-  //   end;
-  //   $$ language plpgsql security definer;
-  // `;
+  // Function: handle profile delete → delete user
+  await sql`
+    create or replace function public.handle_user_delete()
+    returns trigger as $$
+    begin
+        begin
+            delete from auth.users where id = old.id;
+        exception when others then
+            raise log 'handle_user_delete failed for profile %, error: %', old.id, SQLERRM;
+        end;
+        return old;
+    end;
+    $$ language plpgsql security definer;
+  `;
 
-  // // Trigger: after delete on Profile
-  // await sql`
-  //   create or replace trigger on_Profile_user_deleted
-  //   after delete on public."profile"
-  //   for each row
-  //   execute procedure public.handle_user_delete();
-  // `;
+  // Trigger: after delete on Profile
+  await sql`
+    create or replace trigger on_Profile_user_deleted
+    after delete on public."profile"
+    for each row
+    execute procedure public.handle_user_delete();
+  `;
 
   console.log("✅ Finished creating functions and triggers.");
   process.exit();
