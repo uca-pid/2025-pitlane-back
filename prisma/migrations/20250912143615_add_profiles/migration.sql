@@ -47,40 +47,6 @@ CREATE TABLE IF NOT EXISTS auth.users (
     )
 ) TABLESPACE pg_default;
 
-create index IF not exists users_instance_id_idx on auth.users using btree (instance_id) TABLESPACE pg_default;
-
-create index IF not exists users_instance_id_email_idx on auth.users using btree (instance_id, lower((email)::text)) TABLESPACE pg_default;
-create unique INDEX IF not exists confirmation_token_idx on auth.users using btree (confirmation_token) TABLESPACE pg_default
-where
-    ((confirmation_token)::text !~ '^[0-9 ]*$'::text);
-
-create unique INDEX IF not exists recovery_token_idx on auth.users using btree (recovery_token) TABLESPACE pg_default
-where
-    ((recovery_token)::text !~ '^[0-9 ]*$'::text);
-
-create unique INDEX IF not exists email_change_token_current_idx on auth.users using btree (email_change_token_current) TABLESPACE pg_default
-where
-    (
-        (email_change_token_current)::text !~ '^[0-9 ]*$'::text
-    );
-
-create unique INDEX IF not exists email_change_token_new_idx on auth.users using btree (email_change_token_new) TABLESPACE pg_default
-where
-    (
-        (email_change_token_new)::text !~ '^[0-9 ]*$'::text
-    );
-
-create unique INDEX IF not exists reauthentication_token_idx on auth.users using btree (reauthentication_token) TABLESPACE pg_default
-where
-    (
-        (reauthentication_token)::text !~ '^[0-9 ]*$'::text
-    );
-
-create unique INDEX IF not exists users_email_partial_key on auth.users using btree (email) TABLESPACE pg_default
-where
-    (is_sso_user = false);
-create index IF not exists users_is_anonymous_idx on auth.users using btree (is_anonymous) TABLESPACE pg_default;
-
 /*
   Warnings:
 
@@ -160,6 +126,7 @@ ALTER TABLE "public"."_DietaryRestrictionToProfile" ADD CONSTRAINT "_DietaryRest
 
 -- AddForeignKey
 ALTER TABLE "public"."_DietaryRestrictionToProfile" ADD CONSTRAINT "_DietaryRestrictionToProfile_B_fkey" FOREIGN KEY ("B") REFERENCES "public"."Profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
 
 create or replace function public.handle_new_user()
 returns trigger as $$
