@@ -14,24 +14,25 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model User {
-  userID                Int                   @id @default(autoincrement())
-  name                  String
-  email                 String @unique
-  password              String
-  dietaryRestrictions   DietaryRestriction[]
-  preferences           Preference[]
+model Profile {
+  id        String    @id @db.Uuid
+  username  String?   @unique
+  avatarUrl String?   @map("avatar_url")
+  createdAt DateTime  @default(now()) @map("created_at")
+  Preference Preference[]
+  DietaryRestriction DietaryRestriction[]
 }
+
 model Preference {
   PreferenceID Int    @id @default(autoincrement())
   name         String @unique
-  users        User[]
+  users        Profile[]
   foods        Food[]
 }
 
 model Food {
   FoodID              Int                  @id @default(autoincrement())
-  name                String
+  name                String  @unique
   svgLink             String // link to the SVG file
   dietaryRestrictions DietaryRestriction[]
   preferences         Preference[]
@@ -41,5 +42,5 @@ model DietaryRestriction {
   DietaryRestrictionID Int    @id @default(autoincrement())
   name                 String @unique
   foods                Food[]
-  users                User[]
+  users                Profile[]
 }
