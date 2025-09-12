@@ -29,29 +29,29 @@ describe('Foods API', () => {
     await request(app).delete(`/foods/${res.body.FoodID}`);
   });
 
-//////////FALTA DEFINIR SI EL NOMBRE DE LA COMIDA ES UNICO O NO////////
+  ////////FALTA DEFINIR SI EL NOMBRE DE LA COMIDA ES UNICO O NO////////
 
-//   it('POST /foods should return 409 if unique value already exists', async () => {
-//     await request(app)
-//       .post('/foods')
-//       .send({
-//         name: 'UniqueFood',
-//         svgLink: '/images/uniquefood.svg',
-//         preferences: [],
-//         dietaryRestrictions: []
-//       });
-//     const res = await request(app)
-//       .post('/foods')
-//       .send({
-//         name: 'UniqueFood',
-//         svgLink: '/images/uniquefood.svg',
-//         preferences: [],
-//         dietaryRestrictions: []
-//       });
-//     // Accept 409 if name is unique, else 201
-//     expect([409]).toContain(res.statusCode);
-//     await request(app).delete('/foods/name/UniqueFood');
-//   });
+  it('POST /foods should return 409 if unique value already exists', async () => {
+    await request(app)
+      .post('/foods')
+      .send({
+        name: 'UniqueFood',
+        svgLink: '/images/uniquefood.svg',
+        preferences: [],
+        dietaryRestrictions: []
+      });
+    const res = await request(app)
+      .post('/foods')
+      .send({
+        name: 'UniqueFood',
+        svgLink: '/images/uniquefood.svg',
+        preferences: [],
+        dietaryRestrictions: []
+      });
+    // Accept 409 if name is unique, else 201
+    expect([409]).toContain(res.statusCode);
+    await request(app).delete('/foods/name/UniqueFood');
+  });
 
   it('POST /foods/by-preference-and-restriction with body should return an array', async () => {
     const res = await request(app)
@@ -62,7 +62,8 @@ describe('Foods API', () => {
   });
 
   it('GET /foods/recommended/1 should return an array or 404', async () => {
-    const res = await request(app).get('/foods/recommended/1');
+    // Create a profile to ensure userId 1 exists for testing
+    const res = await request(app).get('/foods/recommended/98c933a7-7e1b-47aa-93ca-d1e05eac97d8');
     expect([200, 404]).toContain(res.statusCode);
     if (res.statusCode === 200) {
       expect(Array.isArray(res.body)).toBe(true);

@@ -54,16 +54,16 @@ async function getFoodsByPreferenceAndRestriction(preferenceId, restrictionId) {
 }
 
 async function getRecommendedFoodsForUser(userId) {
-    const user = await prisma.user.findUnique({
-        where: { userID: parseInt(userId) },
-        include: { preferences: true, dietaryRestrictions: true }
+    const profile = await prisma.profile.findUnique({
+        where: { id: userId },
+        include: { Preference: true, DietaryRestriction: true }
     });
-    if (!user) return null;
+    if (!profile) return null;
 
     return prisma.food.findMany({
         where: {
-            preferences: { some: { PreferenceID: { in: user.preferences.map(p => p.PreferenceID) } } },
-            dietaryRestrictions: { some: { DietaryRestrictionID: { in: user.dietaryRestrictions.map(r => r.DietaryRestrictionID) } } }
+            preferences: { some: { PreferenceID: { in: profile.Preference.map(p => p.PreferenceID) } } },
+            dietaryRestrictions: { some: { DietaryRestrictionID: { in: profile.DietaryRestriction.map(r => r.DietaryRestrictionID) } } }
         },
         include: { dietaryRestrictions: true, preferences: true }
     });

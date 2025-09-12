@@ -2,44 +2,47 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-async function getAllUsers() {
-    return prisma.user.findMany({
-        include: { preferences: true, dietaryRestrictions: true }
+
+async function getAllProfiles() {
+    return prisma.profile.findMany({
+        include: { Preference: true, DietaryRestriction: true }
     });
 }
 
-async function getUserById(id) {
-    return prisma.user.findUnique({
-        where: { userID: parseInt(id) },
-        include: { preferences: true, dietaryRestrictions: true }
+async function getProfileById(id) {
+    return prisma.profile.findUnique({
+        where: { id: id },
+        include: { Preference: true, DietaryRestriction: true }
     });
 }
 
-async function createUser({ name, email, password, preferences = [], dietaryRestrictions = [] }) {
-    return prisma.user.create({
+async function createProfile({ id, username, avatarUrl, preferences = [], dietaryRestrictions = [] }) {
+    return prisma.profile.create({
         data: {
-            name,
-            email,
-            password,
-            preferences: preferences.length ? { connect: preferences.map(id => ({ PreferenceID: id })) } : undefined,
-            dietaryRestrictions: dietaryRestrictions.length ? { connect: dietaryRestrictions.map(id => ({ DietaryRestrictionID: id })) } : undefined
+            id,
+            username,
+            avatarUrl,
+            Preference: preferences.length ? { connect: preferences.map(PreferenceID => ({ PreferenceID })) } : undefined,
+            DietaryRestriction: dietaryRestrictions.length ? { connect: dietaryRestrictions.map(DietaryRestrictionID => ({ DietaryRestrictionID })) } : undefined
         },
-        include: { preferences: true, dietaryRestrictions: true }
+        include: { Preference: true, DietaryRestriction: true }
     });
 }
+
 
 
 module.exports = {
-    getAllUsers,
-    getUserById,
-    createUser,
-    deleteUser
+    getAllProfiles,
+    getProfileById,
+    createProfile,
+    deleteProfile
 };
 
-// Delete a user by id
-async function deleteUser(id) {
+
+// Delete a profile by id
+async function deleteProfile(id) {
     try {
-        await prisma.user.delete({ where: { userID: parseInt(id) } });
+        await prisma.profile.delete({ where: { id: id } });
         return true;
     } catch (err) {
         if (err.code === 'P2025') return false;
