@@ -17,14 +17,14 @@ describe('Foods API', () => {
     const res = await request(app)
       .post('/foods')
       .send({
-        name: 'Pizza',
+        name: 'Pizza Test',
         svgLink: '/images/pizza.svg',
         preferences: [],
         dietaryRestrictions: []
       });
     expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty('FoodID');
-    expect(res.body).toHaveProperty('name', 'Pizza');
+    expect(res.body).toHaveProperty('name', 'Pizza Test');
     // Cleanup
     await request(app).delete(`/foods/${res.body.FoodID}`);
   });

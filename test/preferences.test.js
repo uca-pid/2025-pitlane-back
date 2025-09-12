@@ -16,10 +16,10 @@ describe('Preferences API', () => {
   it('POST /preferences should create a preference', async () => {
     const res = await request(app)
       .post('/preferences')
-      .send({ name: 'Spicy' });
+      .send({ name: 'Spicy Test' });
     expect(res.statusCode).toBe(201 || 409);
     expect(res.body).toHaveProperty('PreferenceID');
-    expect(res.body).toHaveProperty('name', 'Spicy');
+    expect(res.body).toHaveProperty('name', 'Spicy Test');
     // Cleanup if created
     if (res.statusCode === 201) {
       await request(app).delete(`/preferences/${res.body.PreferenceID}`);

@@ -16,10 +16,10 @@ describe('Dietary Restrictions API', () => {
   it('POST /dietary-restrictions should create a restriction', async () => {
     const res = await request(app)
       .post('/dietary-restrictions')
-      .send({ name: 'Nut Free' });
+      .send({ name: 'Nut Free Test' });
     expect(res.statusCode).toBe(201 || 409); // Accept 409 if already exists
     expect(res.body).toHaveProperty('DietaryRestrictionID');
-    expect(res.body).toHaveProperty('name', 'Nut Free');
+    expect(res.body).toHaveProperty('name', 'Nut Free Test');
     // Cleanup if created
     if (res.statusCode === 201) {
       await request(app).delete(`/dietary-restrictions/${res.body.DietaryRestrictionID}`);
