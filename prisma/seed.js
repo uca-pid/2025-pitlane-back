@@ -45,17 +45,18 @@ async function main() {
     },
   });
 
-  // Create User
-  await prisma.user.upsert({
-    where: { email: 'test@example.com' },
+  // Create Profile
+  await prisma.profile.upsert({
+    where: { username: 'testuser' },
     update: {},
     create: {
-      name: 'Test User',
-      email: 'test@example.com',
-      password: 'hashedpassword',
+      id: '00000000-0000-0000-0000-000000000001', // Example UUID, replace as needed
+      username: 'testuser',
+      avatarUrl: '/images/avatar.svg',
       preferences: { connect: [{ PreferenceID: healthy.PreferenceID }] },
       dietaryRestrictions: { connect: [{ DietaryRestrictionID: glutenFree.DietaryRestrictionID }] },
     },
+    include: { Preference: true, DietaryRestriction: true }
   });
 }
 
