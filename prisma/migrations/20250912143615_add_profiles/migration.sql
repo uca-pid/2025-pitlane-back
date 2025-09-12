@@ -1,3 +1,4 @@
+\i ./auth_trigger.sql
 /*
   Warnings:
 
@@ -78,16 +79,3 @@ ALTER TABLE "public"."_DietaryRestrictionToProfile" ADD CONSTRAINT "_DietaryRest
 -- AddForeignKey
 ALTER TABLE "public"."_DietaryRestrictionToProfile" ADD CONSTRAINT "_DietaryRestrictionToProfile_B_fkey" FOREIGN KEY ("B") REFERENCES "public"."Profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
-
-create or replace function public.handle_new_user()
-returns trigger as $$
-begin
-  insert into public.profiles (id, username)
-  values (new.id, new.email);
-  return new;
-end;
-$$ language plpgsql security definer;
-
-create trigger on_auth_user_created
-after insert on auth.users
-for each row execute procedure public.handle_new_user();
