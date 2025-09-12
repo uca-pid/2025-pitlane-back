@@ -6,11 +6,15 @@
   },
   "dependencies": {
     "@prisma/client": "^6.15.0",
-    "express": "^5.1.0"
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "postgres": "^3.4.7",
+    "tsx": "^4.20.5"
   },
   "scripts": {
     "start": "node index.js",
     "test": "jest",
-    "seed": "node prisma/seed.js"
+    "seed": "node prisma/seed.js",
+    "migrate-dev": "npx prisma migrate dev && npx tsx prisma/triggers.ts"
   }
 }
