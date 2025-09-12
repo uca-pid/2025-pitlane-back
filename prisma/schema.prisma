@@ -18,10 +18,11 @@ enum Role {
   admin
   user
 }
+
 model Profile {
   id                 String               @id @db.Uuid
   role               Role                 @default(user)
-  username           String               @unique
+  username           String?              @unique
   Preference         Preference[]         @relation("profile_preference")
   DietaryRestriction DietaryRestriction[] @relation("profile_dietaryrestriction")
 

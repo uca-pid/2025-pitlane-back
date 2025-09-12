@@ -18,9 +18,9 @@ async function main() {
             insert into public."profile" (id)
             values (new.id);
         exception when others then
-            raise notice 'handle_new_user failed for user %, error: %', new.id, SQLERRM;
+            raise log '❌ handle_new_user failed for user %, error: %', new.id, SQLERRM;
         end;
-        return new;
+      return new;
     end;
     $$ language plpgsql security definer;
   `;
