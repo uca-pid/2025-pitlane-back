@@ -53,8 +53,8 @@ async function main() {
       id: '00000000-0000-0000-0000-000000000001', // Example UUID, replace as needed
       username: 'testuser',
       avatarUrl: '/images/avatar.svg',
-      preferences: { connect: [{ PreferenceID: healthy.PreferenceID }] },
-      dietaryRestrictions: { connect: [{ DietaryRestrictionID: glutenFree.DietaryRestrictionID }] },
+      Preference: { connect: [{ PreferenceID: healthy.PreferenceID }] },
+      DietaryRestriction: { connect: [{ DietaryRestrictionID: glutenFree.DietaryRestrictionID }] },
     },
     include: { Preference: true, DietaryRestriction: true }
   });
