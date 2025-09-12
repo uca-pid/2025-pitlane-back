@@ -45,18 +45,14 @@ async function main() {
     },
   });
 
-  // Create Profile
+  // Create Profile (only id and username)
   await prisma.profile.upsert({
     where: { username: 'testuser' },
     update: {},
     create: {
       id: '00000000-0000-0000-0000-000000000001', // Example UUID, replace as needed
       username: 'testuser',
-      avatarUrl: '/images/avatar.svg',
-      Preference: { connect: [{ PreferenceID: healthy.PreferenceID }] },
-      DietaryRestriction: { connect: [{ DietaryRestrictionID: glutenFree.DietaryRestrictionID }] },
     },
-    include: { Preference: true, DietaryRestriction: true }
   });
 }
 
