@@ -44,3 +44,24 @@ module.exports = {
     createProfile,
     deleteProfile
 };
+
+// PATCH: Update username by profile id
+async function updateProfileUsername(id, newUsername) {
+    return prisma.profile.update({
+        where: { id },
+        data: { username: newUsername },
+        include: { Preference: true, DietaryRestriction: true }
+    });
+}
+
+// PATCH: Update role by profile id
+async function updateProfileRole(id, newRole) {
+    return prisma.profile.update({
+        where: { id },
+        data: { role: newRole },
+        include: { Preference: true, DietaryRestriction: true }
+    });
+}
+
+module.exports.updateProfileUsername = updateProfileUsername;
+module.exports.updateProfileRole = updateProfileRole;

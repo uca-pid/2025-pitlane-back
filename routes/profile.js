@@ -25,6 +25,40 @@ router.get('/:id', authenticateJWT, async (req, res) => {
   }
 });
 
+// PATCH /profile/:id/username - update username (protegido)
+router.patch('/:id/username', authenticateJWT, async (req, res) => {
+  try {
+    const { username } = req.body;
+    if (!username) return res.status(400).json({ error: 'Username is required' });
+    const updated = await profilesController.updateProfileUsername(req.params.id, username);
+    res.json(updated);
+  } catch (err) {
+    if (err.code === 'P2002') {
+      res.status(409).json({ error: 'Profile with this username already exists' });
+    } else if (err.code === 'P2025') {
+      res.status(404).json({ error: 'Profile not found' });
+    } else {
+      res.status(500).json({ error: err.message });
+    }
+  }
+});
+
+// PATCH /profile/:id/role - update role (protegido)
+router.patch('/:id/role', authenticateJWT, async (req, res) => {
+  try {
+    const { role } = req.body;
+    if (!role) return res.status(400).json({ error: 'Role is required' });
+    const updated = await profilesController.updateProfileRole(req.params.id, role);
+    res.json(updated);
+  } catch (err) {
+    if (err.code === 'P2025') {
+      res.status(404).json({ error: 'Profile not found' });
+    } else {
+      res.status(500).json({ error: err.message });
+    }
+  }
+});
+
 module.exports = router;
 
 // DELETE /profile/:id - delete a profile by id (protegido)
