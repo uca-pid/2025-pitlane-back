@@ -53,9 +53,9 @@ async function getFoodsByPreferenceAndRestriction(preferenceId, restrictionId) {
     }
 }
 
-async function getRecommendedFoodsForUser(userId) {
+async function getRecommendedFoodsForProfile(profileId) {
     const profile = await prisma.profile.findUnique({
-        where: { id: userId },
+        where: { id: profileId },
         include: { Preference: true, DietaryRestriction: true }
     });
     if (!profile) return null;
@@ -75,7 +75,7 @@ module.exports = {
     getFoodsByPreference,
     getFoodsByRestriction,
     getFoodsByPreferenceAndRestriction,
-    getRecommendedFoodsForUser,
+    getRecommendedFoodsForProfile,
     createFood,
     deleteFood
 };

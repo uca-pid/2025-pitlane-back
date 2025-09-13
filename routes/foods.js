@@ -55,11 +55,11 @@ router.post('/by-preference-and-restriction', async (req, res) => {
     }
 });
 
-// GET /foods/recommended/:userId
-router.get('/recommended/:userId', async (req, res) => {
+// GET /foods/recommended/:profileId
+router.get('/recommended/:profileId', async (req, res) => {
     try {
-        const foods = await foodsController.getRecommendedFoodsForUser(req.params.userId);
-        if (foods === null) return res.status(404).json({ error: 'User not found' });
+        const foods = await foodsController.getRecommendedFoodsForProfile(req.params.profileId);
+        if (foods === null) return res.status(404).json({ error: 'Profile not found' });
         res.json(foods);
     } catch (err) {
         res.status(500).json({ error: err.message });

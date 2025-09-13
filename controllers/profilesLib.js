@@ -1,7 +1,6 @@
-// controllers/usersLib.js
+// controllers/profilesLib.js
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-
 
 async function getAllProfiles() {
     return prisma.profile.findMany({
@@ -16,28 +15,17 @@ async function getProfileById(id) {
     });
 }
 
-async function createProfile({ id, username, avatarUrl, preferences = [], dietaryRestrictions = [] }) {
+async function createProfile({ id, username, preferences = [], dietaryRestrictions = [] }) {
     return prisma.profile.create({
         data: {
             id,
             username,
-            avatarUrl,
             Preference: preferences.length ? { connect: preferences.map(PreferenceID => ({ PreferenceID })) } : undefined,
             DietaryRestriction: dietaryRestrictions.length ? { connect: dietaryRestrictions.map(DietaryRestrictionID => ({ DietaryRestrictionID })) } : undefined
         },
         include: { Preference: true, DietaryRestriction: true }
     });
 }
-
-
-
-module.exports = {
-    getAllProfiles,
-    getProfileById,
-    createProfile,
-    deleteProfile
-};
-
 
 // Delete a profile by id
 async function deleteProfile(id) {
@@ -49,3 +37,10 @@ async function deleteProfile(id) {
         throw err;
     }
 }
+
+module.exports = {
+    getAllProfiles,
+    getProfileById,
+    createProfile,
+    deleteProfile
+};
