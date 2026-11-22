@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const { updateCalorieGoal, getCalorieProgress } = require('../controllers/profilesLib');
+const BadgesLibrary = require('../controllers/badgesLib');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
@@ -20,9 +22,21 @@ router.get('/', authenticateJWT, async (req, res) => {
 
 // GET /profile/:id - get profile by id (protegido)
 router.get('/:id', authenticateJWT, async (req, res) => {
+ 
   try {
-    const profile = await profilesController.getProfileById(req.params.id);
+    const profile = await profilesController.getProfileById(req.params.id, req.user?.email);
     if (!profile) return res.status(404).json({ error: 'Profile not found' });
+    
+    // Check and award badges retroactively on first profile access
+    try {
+      console.log(`Profile accessed for user: ${req.params.id} - Running retroactive badge check`);
+      const retroactiveResult = await BadgesLibrary.checkRetroactiveBadges(req.params.id);
+      console.log('Retroactive badge result:', retroactiveResult);
+    } catch (badgeError) {
+      console.error('Error in retroactive badge check:', badgeError);
+      // Don't fail profile request if badge check fails
+    }
+    
     // Devolver solo los campos requeridos
     const { id, username, role } = profile;
     res.json({ id, username, role });
@@ -34,7 +48,7 @@ router.get('/:id', authenticateJWT, async (req, res) => {
 // GET /profile/:id/full - get profile by id with preferences and dietary restrictions (protegido)
 router.get('/:id/full', authenticateJWT, async (req, res) => {
   try {
-    const profile = await profilesController.getProfileById(req.params.id);
+    const profile = await profilesController.getProfileById(req.params.id, req.user?.email);
     if (!profile) return res.status(404).json({ error: 'Profile not found' });
     // Devolver todos los campos incluyendo relaciones
     res.json(profile);
@@ -279,8 +293,6 @@ router.put('/:id/preferences-and-restrictions', authenticateJWT, async (req, res
   }
 });
 
-module.exports = router;
-
 // DELETE /profile/:id - delete a profile by id (protegido)
 router.delete('/:id', authenticateJWT, async (req, res) => {
   try {
@@ -308,3 +320,118 @@ router.post('/', authenticateJWT, async (req, res) => {
     }
   }
 });
+
+// Ruta para actualizar el objetivo de calorías
+router.put('/:id/calorie-goal', authenticateJWT, async (req, res) => {
+  const { calorieGoal } = req.body;
+  const userId = req.params.id;
+
+  if (!calorieGoal) {
+    return res.status(400).json({ error: 'Missing calorieGoal' });
+  }
+
+  try {
+    const updatedProfile = await updateCalorieGoal(userId, calorieGoal);
+    res.json(updatedProfile);
+  } catch (error) {
+    console.error('Error updating calorie goal:', error);
+    res.status(500).json({ error: 'Failed to update calorie goal', details: error.message });
+  }
+});
+
+// Ruta para obtener el progreso de calorías
+router.get('/:id/calorie-progress', authenticateJWT, async (req, res) => {
+  const { date } = req.query;
+  const userId = req.params.id;
+
+  try {
+    const progress = await getCalorieProgress(userId, date ? new Date(date) : new Date());
+    res.json(progress);
+  } catch (error) {
+    console.error('Error fetching calorie progress:', error);
+    res.status(500).json({ error: 'Failed to fetch calorie progress', details: error.message });
+  }
+});
+
+// Ruta para obtener las insignias del usuario
+router.get('/:id/badges', authenticateJWT, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const result = await BadgesLibrary.getUserBadges(userId);
+    
+    if (result.success) {
+      res.json(result.data);
+    } else {
+      res.status(500).json({ error: result.error });
+    }
+  } catch (error) {
+    console.error('Error fetching user badges:', error);
+    res.status(500).json({ error: 'Failed to fetch user badges', details: error.message });
+  }
+});
+
+// Ruta para obtener estadísticas de insignias del usuario
+router.get('/:id/badge-stats', authenticateJWT, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const result = await BadgesLibrary.getUserBadgeStats(userId);
+    
+    if (result.success) {
+      res.json(result.data);
+    } else {
+      res.status(500).json({ error: result.error });
+    }
+  } catch (error) {
+    console.error('Error fetching badge statistics:', error);
+    res.status(500).json({ error: 'Failed to fetch badge statistics', details: error.message });
+  }
+});
+
+// Ruta para establecer el badge principal del usuario
+router.put('/:id/primary-badge', authenticateJWT, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { badgeId } = req.body;
+
+    // Verificar que el usuario tenga el badge que quiere establecer como principal
+    if (badgeId) {
+      const userBadges = await BadgesLibrary.getUserBadges(userId);
+      const hasBadge = userBadges.success && userBadges.data.some(badge => badge.BadgeID === badgeId);
+      
+      if (!hasBadge) {
+        return res.status(400).json({ error: 'User does not have this badge' });
+      }
+    }
+
+    // Actualizar el badge principal
+    const result = await profilesController.updatePrimaryBadge(userId, badgeId);
+    
+    if (result.success) {
+      res.json(result.data);
+    } else {
+      res.status(500).json({ error: result.error });
+    }
+  } catch (error) {
+    console.error('Error updating primary badge:', error);
+    res.status(500).json({ error: 'Failed to update primary badge', details: error.message });
+  }
+});
+
+// Ruta para obtener el badge principal del usuario
+router.get('/:id/primary-badge', authenticateJWT, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const result = await profilesController.getPrimaryBadge(userId);
+    
+    if (result.success) {
+      res.json(result.data);
+    } else {
+      res.status(500).json({ error: result.error });
+    }
+  } catch (error) {
+    console.error('Error fetching primary badge:', error);
+    res.status(500).json({ error: 'Failed to fetch primary badge', details: error.message });
+  }
+});
+
+module.exports = router;
